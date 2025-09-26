@@ -82,4 +82,43 @@ class ProductServiceTest {
         });
     }
 
+    @Test
+    public void updateShouldReturnProductDTOWhenIdExistsAndValidData(){
+
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doNothing().when(serviceSpy).validateData(productDTO);
+
+        ProductDTO result = serviceSpy.update(existingId, productDTO);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(result.getId(), existingId);
+        Assertions.assertEquals(result.getName(), "Playstation");
+    }
+
+    @Test
+    public void updateShouldReturnInvalidDataExceptionWhenIdExistsAndProductNameIsBlank(){
+
+        productDTO.setName("");
+
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doThrow(InvalidDataException.class).when(serviceSpy).validateData(productDTO);
+
+        Assertions.assertThrows(InvalidDataException.class, () -> {
+            ProductDTO result = serviceSpy.update(existingId, productDTO);
+        });
+    }
+
+    @Test
+    public void updateShouldReturnInvalidDataExceptionWhenIdExistsAndProductPriceIsNegativeOrZero(){
+
+        productDTO.setPrice(-5.0);
+
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doThrow(InvalidDataException.class).when(serviceSpy).validateData(productDTO);
+
+        Assertions.assertThrows(InvalidDataException.class, () -> {
+            ProductDTO result = serviceSpy.update(existingId, productDTO);
+        });
+    }
+
 }
