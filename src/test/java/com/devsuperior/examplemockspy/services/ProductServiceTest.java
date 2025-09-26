@@ -3,6 +3,7 @@ package com.devsuperior.examplemockspy.services;
 import com.devsuperior.examplemockspy.dto.ProductDTO;
 import com.devsuperior.examplemockspy.entities.Product;
 import com.devsuperior.examplemockspy.repositories.ProductRepository;
+import com.devsuperior.examplemockspy.services.exceptions.InvalidDataException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
@@ -56,5 +56,30 @@ class ProductServiceTest {
         Assertions.assertEquals(result.getName(), "Playstation");
     }
 
+    @Test
+    public void insertShouldReturnInvalidDataExceptionWhenProductNameIsBlank(){
+
+        productDTO.setName("");
+
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doThrow(InvalidDataException.class).when(serviceSpy).validateData(productDTO);
+
+        Assertions.assertThrows(InvalidDataException.class, () -> {
+            ProductDTO result = serviceSpy.insert(productDTO);
+        });
+    }
+
+    @Test
+    public void insertShouldReturnInvalidDataExceptionWhenProductPriceIsNegativeOrZero(){
+
+        productDTO.setPrice(-5.0);
+
+        ProductService serviceSpy = Mockito.spy(productService);
+        Mockito.doThrow(InvalidDataException.class).when(serviceSpy).validateData(productDTO);
+
+        Assertions.assertThrows(InvalidDataException.class, () -> {
+            ProductDTO result = serviceSpy.insert(productDTO);
+        });
+    }
 
 }
